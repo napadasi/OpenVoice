@@ -3,6 +3,7 @@ import numpy as np
 import re
 import soundfile
 from openvoice import utils
+from openvoice.serialization import safe_torch_load, safe_torch_save
 from openvoice import commons
 import os
 import librosa
@@ -33,7 +34,7 @@ class OpenVoiceBaseClass(object):
         self.device = device
 
     def load_ckpt(self, ckpt_path):
-        checkpoint_dict = torch.load(ckpt_path, map_location=torch.device(self.device))
+        checkpoint_dict = safe_torch_load(ckpt_path, map_location=torch.device(self.device))
         a, b = self.model.load_state_dict(checkpoint_dict['model'], strict=False)
         print("Loaded checkpoint '{}'".format(ckpt_path))
         print('missing/unexpected keys:', a, b)
@@ -134,7 +135,7 @@ class ToneColorConverter(OpenVoiceBaseClass):
 
         if se_save_path is not None:
             os.makedirs(os.path.dirname(se_save_path), exist_ok=True)
-            torch.save(gs.cpu(), se_save_path)
+            safe_torch_save(gs, se_save_path)
 
         return gs
 

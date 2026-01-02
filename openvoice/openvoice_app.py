@@ -6,6 +6,7 @@ from zipfile import ZipFile
 import langid
 from openvoice import se_extractor
 from openvoice.api import BaseSpeakerTTS, ToneColorConverter
+from openvoice.serialization import safe_torch_load
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--share", action='store_true', default=False, help="make link public")
@@ -27,9 +28,15 @@ tone_color_converter = ToneColorConverter(f'{ckpt_converter}/config.json', devic
 tone_color_converter.load_ckpt(f'{ckpt_converter}/checkpoint.pth')
 
 # load speaker embeddings
-en_source_default_se = torch.load(f'{en_ckpt_base}/en_default_se.pth').to(device)
-en_source_style_se = torch.load(f'{en_ckpt_base}/en_style_se.pth').to(device)
-zh_source_se = torch.load(f'{zh_ckpt_base}/zh_default_se.pth').to(device)
+en_source_default_se = safe_torch_load(
+    f'{en_ckpt_base}/en_default_se.pth', map_location=device
+).to(device)
+en_source_style_se = safe_torch_load(
+    f'{en_ckpt_base}/en_style_se.pth', map_location=device
+).to(device)
+zh_source_se = safe_torch_load(
+    f'{zh_ckpt_base}/zh_default_se.pth', map_location=device
+).to(device)
 
 # This online demo mainly supports English and Chinese
 supported_languages = ['zh', 'en']
